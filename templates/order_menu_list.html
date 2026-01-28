@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 주문 목록</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='table.css') }}">
+    <style>
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        a:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #1e2a38;
+            padding: 1rem 2rem;
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            color: #1e2a38;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .menu-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .menu-card button {
+            background-color: #1e2a38;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+
+        .menu-card button:hover {
+            background-color: #31445d;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('main') }}">검도부 주점</a>
+    </header>
+    <nav>
+        <a href="{{ url_for('order_menu_list') }}">주문 목록</a>
+        <a href="{{ url_for('takeout') }}">테이크아웃</a>
+        <a href="{{ url_for('view_done_orders') }}">완료된 요리</a>
+        <a href="{{ url_for('view_payments') }}">결제 상황</a>
+    </nav>
+
+    <h1>메뉴 선택</h1>
+    <div class="menu-grid">
+        {% for menu in menus %}
+        <form method="get" action="{{ url_for('view_menu_orders', category=menu['name']) }}">
+            <div class="menu-card">
+                <button type="submit">
+                    {{ menu['name'] }}{% if menu['type'] %} ({{ menu['type'] }}){% endif %}
+                </button>
+            </div>
+        </form>
+        {% endfor %}
+    </div>
+</body>
+</html>

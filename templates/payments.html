@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>결제 현황</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='table.css') }}">
+    <style>
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        a:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #1e2a38;
+            padding: 1rem 2rem;
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        nav {
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 1rem;
+            font-weight: bold;
+        }
+
+        nav a {
+            color: #333;
+            font-size: 1rem;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            color: #1e2a38;
+        }
+
+        .payment-list {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .payment-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            padding: 1.2rem;
+        }
+
+        .payment-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #1e2a38;
+        }
+
+        .payment-card ul {
+            padding-left: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .payment-card li {
+            margin-bottom: 0.3rem;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .detail-block {
+            margin-top: 0.5rem;
+            background-color: #f9f9f9;
+            padding: 0.6rem;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('main') }}">검도부 주점</a>
+    </header>
+    <nav>
+        <a href="{{ url_for('order_menu_list') }}">주문 목록</a>
+        <a href="{{ url_for('takeout') }}">테이크아웃</a>
+        <a href="{{ url_for('view_done_orders') }}">완료된 요리</a>
+        <a href="{{ url_for('view_payments') }}">결제 상황</a>
+    </nav>
+
+    <h1>결제 현황</h1>
+
+    <div class="summary">
+        <p><span class="label">총 결제 금액:</span> ₩{{ "{:,}".format(total_revenue) }}</p>
+        <button onclick="window.location.href='{{ url_for('export_payments') }}'">엑셀로 저장</button>
+    </div>
+
+    <div class="payment-list">
+        {% for payment in payments %}
+        <div class="payment-card">
+            <h2>테이블 {{ payment.table_num }}번</h2>
+            <div><span class="label">총 결제 금액:</span> ₩{{ "{:,}".format(payment.total_price) }}</div>
+            <div><span class="label">결제 시각:</span> {{ payment.payment_time }}</div>
+            <div><span class="label">사용 시간:</span> {{ payment.used_time }}</div>
+            {% if payment.memo %}
+            <div><span class="label">메모:</span> {{ payment.memo }}</div>
+            {% endif %}
+            <div class="detail-block">
+                <div class="label">상세 주문:</div>
+                <ul>
+                    {% for menu_name, count in payment.detail.items() %}
+                    {% if count > 0 %}
+                    <li>{{ menu_name }} - {{ count }}개</li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

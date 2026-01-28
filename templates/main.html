@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>검도부 주점</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+    a:hover {
+        text-decoration: none;
+        color: inherit;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="{{ url_for('main') }}">검도부 주점</a>
+  </header>
+
+  <nav>
+    <a href="{{ url_for('order_menu_list') }}">주문 목록</a>
+    <a href="{{ url_for('takeout') }}">테이크 아웃</a>
+    <a href="{{ url_for('view_done_orders') }}">완료된 요리</a>
+    <a href="{{ url_for('view_payments') }}">결제 상황</a>
+  </nav>
+
+  <main>
+    <h2>테이블 선택</h2>
+    <div class="table-container">
+      {% for table in tables %}
+      <a href="{{ url_for('table', table_num=table['table_num']) }}" class="table-card">
+        <p>Table {{ table['table_num'] }}</p>
+        <p>총 금액: {{ table['total_price'] }} won</p>
+        <p>경과 시간: {{ table['elapsed_time'] }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </main>
+</body>
+</html>

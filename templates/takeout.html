@@ -1,0 +1,148 @@
+<!-- templates/takeout.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테이크아웃 주문</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='table.css') }}"> <!-- table.css 추가 -->
+    <style>
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        a:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+        .submit-button {
+            display: block;
+            width: 100%;
+            background-color: #28a745; /* 녹색 */
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .submit-button:hover {
+            background-color: #218838; /* 더 진한 녹색 */
+        }
+
+        .total-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .memo-input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+  </style>
+    <script>
+        let selectedOrders = {};
+        let totalPrice = 0;
+
+        function addToOrder(menuName, price) {
+            if (!selectedOrders[menuName]) {
+                selectedOrders[menuName] = { count: 0, price: price };
+            }
+            selectedOrders[menuName].count += 1;
+            totalPrice += price;
+            renderSelectedOrders();
+        }
+
+        function removeFromOrder(menuName, price) {
+            if (selectedOrders[menuName]) {
+                if (selectedOrders[menuName].count > 0) {
+                    selectedOrders[menuName].count -= 1;
+                    totalPrice -= price;
+
+                    if (selectedOrders[menuName].count === 0) {
+                        delete selectedOrders[menuName];
+                    }
+                }
+            }
+            renderSelectedOrders();
+        }
+
+        function renderSelectedOrders() {
+            const orderList = document.getElementById('order-list');
+            const totalPriceElement = document.getElementById('total-price');
+            orderList.innerHTML = '';
+            for (const [menuName, data] of Object.entries(selectedOrders)) {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${menuName} - ${data.count}개 (₩${data.count * data.price})`;
+
+                // 삭제 버튼 추가
+                const removeButton = document.createElement('button');
+                removeButton.textContent = '삭제';
+                removeButton.style.marginLeft = '10px';
+                removeButton.onclick = () => removeFromOrder(menuName, data.price);
+
+                listItem.appendChild(removeButton);
+                orderList.appendChild(listItem);
+            }
+            totalPriceElement.textContent = `총액: ₩${totalPrice}`;
+        }
+
+        function submitOrders() {
+            const memo = document.getElementById('memo').value; // 메모 입력값 가져오기
+            fetch('/submit-takeout-orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orders: selectedOrders, memo: memo })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('주문이 완료되었습니다.');
+                    location.reload();
+                } else {
+                    response.json().then(data => alert(`주문 실패: ${data.error}`));
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('main') }}">검도부 주점</a>
+    </header>
+    <nav>
+        <a href="{{ url_for('order_menu_list') }}">주문 목록</a>
+        <a href="{{ url_for('takeout') }}">테이크아웃</a>
+        <a href="{{ url_for('view_done_orders') }}">완료된 요리</a>
+        <a href="{{ url_for('view_payments') }}">결제 상황</a>
+    </nav>
+
+    <div class="container">
+        <h1>테이크아웃 {{ takeout_number }}번 메뉴</h1> <!-- 테이크아웃 번호 표시 -->
+        <div class="table-grid"> <!-- table-grid 클래스 사용 -->
+            {% for item in menus %}
+            <div class="table-card"> <!-- table-card 클래스 사용 -->
+                <h2>{{ item.name }}</h2>
+                <p>{{ "{:,}".format(item.price) }} won</p>
+                <button class="order-button" onclick="addToOrder('{{ item.name }}', {{ item.price }})">추가</button>
+            </div>
+            {% endfor %}
+        </div>
+        <h2>선택한 메뉴</h2>
+        <ul id="order-list"></ul>
+        <div id="total-price" class="total-price">총액: ₩0</div>
+        <textarea id="memo" class="memo-input" placeholder="메모를 입력하세요"></textarea>
+        <button class="submit-button" onclick="submitOrders()">주문 완료</button>
+        <a href="/" class="back-button">뒤로</a>
+    </div>
+</body>
+</html>
