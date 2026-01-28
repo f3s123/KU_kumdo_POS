@@ -1,2 +1,3 @@
 # KU_kumdo_POS
-검도부 주점 포스기 제작
+for operation one day restaurant
+If you want to reset db, run create.db.
